@@ -8,6 +8,7 @@ export default function (app: Express) {
 
 
     //Register User
+
     app.post("/api/users", validateRequest(createUserSchema), createUserHandler)
 
 
