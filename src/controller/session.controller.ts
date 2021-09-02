@@ -5,6 +5,7 @@ import { createAccessToken, createSession } from "../service/session.service";
 import { validatePassword } from "../service/user.service";
 import { sign } from "../urtils/jwt.utils";
 import get from "lodash/get"
+import { updateSession, findSessions } from "../service/session.service";
 
 export async function createUserSessionHandler(req: Request, res: Response) {
     try {
@@ -37,14 +38,15 @@ export async function createUserSessionHandler(req: Request, res: Response) {
 }
 
 export async function invalidateUserSessionHandler(req: Request, res: Response) {
-    try {
-        const sessionId = get(req, "User.session");
+    const sessionId = get(req, "User.session");
+    await updateSession({ _id: sessionId }, { valid: false });
+    return res.sendStatus(200)
+}
 
-        await updateSession({ _id: sessionId }, { valid: false });
+export async function getUserSessionHandler(req: Request, res: Response) {
+    const userId = get(req, "user._id");
 
-        return res.sendStatus(200)
+    const sessions = await findSessions({ user: userId, valid: true });
 
-    } catch (error) {
-
-    }
+    return res.send(sessions)
 }
