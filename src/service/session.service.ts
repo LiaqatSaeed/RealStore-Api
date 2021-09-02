@@ -1,7 +1,7 @@
 import config from "config";
 import { Omit } from "lodash";
 import get from "lodash/get";
-import { LeanDocument } from "mongoose";
+import { LeanDocument, FilterQuery, UpdateQuery } from "mongoose";
 import { findUser } from "../controller/user.controller";
 import Session, { SessionDocument } from "../model/session.model";
 import { UserDocument } from "../model/user.model";
@@ -53,3 +53,13 @@ export async function reIssueAccessToken({ refreshToken }: { refreshToken: strin
     return accessToken;
 }
 
+export async function updateSession(
+    query: FilterQuery<SessionDocument>,
+    update: UpdateQuery<SessionDocument>
+) {
+    return Session.updateOne(query, update);
+}
+
+export async function findSessions(query: FilterQuery<SessionDocument>) {
+    return Session.find(query).lean();
+}
