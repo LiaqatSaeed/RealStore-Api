@@ -8,58 +8,60 @@ import { UserDocument } from "../model/user.model";
 import { decode, sign } from "../urtils/jwt.utils";
 
 export async function createSession(userId: string, userAgent: string) {
-    const session = await Session.create({ user: userId, userAgent });
-    return session.toJSON();
+  const session = await Session.create({ user: userId, userAgent });
+  return session.toJSON();
 }
 
 export function createAccessToken({
-    user,
-    session,
+  user,
+  session,
 }: {
-    user:
+  user:
     | Omit<UserDocument, "password">
     | LeanDocument<Omit<UserDocument, "password">>;
-    session:
+  session:
     | Omit<SessionDocument, "password">
     | LeanDocument<Omit<SessionDocument, "password">>;
 }) {
-    // Build and return new Access Token
-    const accessToken = sign(
-        { ...user, session: session._id },
-        { expiresIn: config.get("accessTokenTtl") } //15 minutes
-    );
+  // Build and return new Access Token
+  return sign(
+    { ...user, session: session._id },
+    { expiresIn: config.get("accessTokenTtl") } //15 minutes
+  );
 }
 
+export async function reIssueAccessToken({
+  refreshToken,
+}: {
+  refreshToken: string;
+}) {
+  //Decode the refresh token
+  const { decoded } = decode(refreshToken);
 
+  if (!decoded || !get(decoded, "_id")) return false;
 
-export async function reIssueAccessToken({ refreshToken }: { refreshToken: string }) {
-    //Decode the refresh token
-    const { decoded } = decode(refreshToken);
+  //Get the session
+  const session = await Session.findById(get(decoded, "_id"));
 
-    if (!decoded || !get(decoded, "_id")) return false;
+  //Make sure the session is still valid
+  if (!session || !session?.valid) return false;
 
-    //Get the session
-    const session = await Session.findById(get(decoded, "_id"));
+  const user = await findUser({ _id: session.user });
 
-    //Make sure the session is still valid
-    if (!session || !session?.valid) return false;
+  if (!user) return false;
 
-    const user = await findUser({ _id: session.user })
+  const accessToken = createAccessToken({ user, session });
 
-    if (!user) return false;
-
-    const accessToken = createAccessToken({ user, session });
-
-    return accessToken;
+  return accessToken;
 }
 
 export async function updateSession(
-    query: FilterQuery<SessionDocument>,
-    update: UpdateQuery<SessionDocument>
+  query: FilterQuery<SessionDocument>,
+  update: UpdateQuery<SessionDocument>
 ) {
-    return Session.updateOne(query, update);
+  return Session.updateOne(query, update);
 }
 
 export async function findSessions(query: FilterQuery<SessionDocument>) {
-    return Session.find(query).lean();
+  return Session.find(query).lean();
 }

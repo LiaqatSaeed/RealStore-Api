@@ -3,13 +3,7 @@ import { DocumentDefinition } from "mongoose";
 import User, { UserDocument } from "../model/user.model";
 
 export async function createUser(input: DocumentDefinition<UserDocument>) {
-  try {
-    let doc = new User(input);
-    let results = await doc.save();
-    return results;
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
+  return await User.create(input);
 }
 
 export async function validatePassword({
