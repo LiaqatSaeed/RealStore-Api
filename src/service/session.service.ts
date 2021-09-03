@@ -1,14 +1,15 @@
 import config from "config";
 import { Omit } from "lodash";
 import get from "lodash/get";
-import { LeanDocument, FilterQuery, UpdateQuery } from "mongoose";
+import { LeanDocument, FilterQuery, UpdateQuery, ObjectId } from "mongoose";
 import { findUser } from "../controller/user.controller";
-import Session, { SessionDocument } from "../model/session.model";
-import { UserDocument } from "../model/user.model";
+import Session, { SessionModel } from "../model/session.model";
+import User from "../model/user.model";
 import { decode, sign } from "../urtils/jwt.utils";
+import { DocumentType } from "@typegoose/typegoose";
 
-export async function createSession(userId: string, userAgent: string) {
-  const session = await Session.create({ user: userId, userAgent });
+export async function createSession(userId: ObjectId, userAgent: string) {
+  const session = await SessionModel.create({ user: userId, userAgent });
   return session.toJSON();
 }
 
@@ -16,12 +17,8 @@ export function createAccessToken({
   user,
   session,
 }: {
-  user:
-    | Omit<UserDocument, "password">
-    | LeanDocument<Omit<UserDocument, "password">>;
-  session:
-    | Omit<SessionDocument, "password">
-    | LeanDocument<Omit<SessionDocument, "password">>;
+  user: Omit<User, "password"> | LeanDocument<Omit<User, "password">>;
+  session: Omit<Session, "password"> | LeanDocument<Omit<Session, "password">>;
 }) {
   // Build and return new Access Token
   return sign(
@@ -41,7 +38,7 @@ export async function reIssueAccessToken({
   if (!decoded || !get(decoded, "_id")) return false;
 
   //Get the session
-  const session = await Session.findById(get(decoded, "_id"));
+  const session = await SessionModel.findById(get(decoded, "_id"));
 
   //Make sure the session is still valid
   if (!session || !session?.valid) return false;
@@ -56,12 +53,12 @@ export async function reIssueAccessToken({
 }
 
 export async function updateSession(
-  query: FilterQuery<SessionDocument>,
-  update: UpdateQuery<SessionDocument>
+  query: FilterQuery<DocumentType<Session>>,
+  update: UpdateQuery<DocumentType<Session>>
 ) {
-  return Session.updateOne(query, update);
+  return SessionModel.updateOne(query, update);
 }
 
-export async function findSessions(query: FilterQuery<SessionDocument>) {
-  return Session.find(query).lean();
+export async function findSessions(query: FilterQuery<DocumentType<Session>>) {
+  return SessionModel.find(query).lean();
 }
