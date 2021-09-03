@@ -1,19 +1,19 @@
 import omit from "lodash/omit";
 import { DocumentDefinition } from "mongoose";
-import User, { UserDocument } from "../model/user.model";
+import User, { UserModel } from "../model/user.model";
 
-export async function createUser(input: DocumentDefinition<UserDocument>) {
-  return await User.create(input);
+export async function createUser(input: User) {
+  return await UserModel.create(input);
 }
 
 export async function validatePassword({
   email,
   password,
 }: {
-  email: UserDocument["email"];
+  email: User["email"];
   password: string;
 }) {
-  const user = await User.findOne({ email });
+  const user = await UserModel.findOne({ email });
 
   if (!user) {
     return false;

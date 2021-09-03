@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import omit from "lodash/omit";
 import { FilterQuery } from "mongoose";
-import User, { UserDocument } from "../model/user.model";
+import User, { UserModel } from "../model/user.model";
 import { createUser } from "../service/user.service";
+import { DocumentType } from "@typegoose/typegoose";
 
 export async function createUserHandler(req: Request, res: Response) {
   try {
@@ -13,6 +14,6 @@ export async function createUserHandler(req: Request, res: Response) {
   }
 }
 
-export async function findUser(query: FilterQuery<UserDocument>) {
-  return User.findOne(query).lean();
+export async function findUser(query: FilterQuery<DocumentType<User>>) {
+  return UserModel.findOne(query).lean();
 }

@@ -1,29 +1,10 @@
-import mongoose from "mongoose";
+import { ObjectId } from "mongoose";
 import bcrypt from "bcrypt";
 import config from "config";
+import { getModelForClass, prop, pre } from "@typegoose/typegoose";
 
-export interface UserDocument extends mongoose.Document {
-  email: string;
-  name: string;
-  password: string;
-  createdAt: Date;
-  updatedAt: Date;
-  comparePassword(candidatePassword: String): Promise<boolean>;
-}
-
-const UserSchema = new mongoose.Schema(
-  {
-    email: { type: String, required: true, unique: true },
-    name: { type: String, required: true },
-    password: { type: String, required: true },
-  },
-  {
-    timestamps: true,
-  }
-);
-
-UserSchema.pre("save", async function (next: mongoose.HookNextFunction) {
-  let user = this as UserDocument;
+@pre<User>("save", async function (next) {
+  let user = this;
 
   //only has the password if it has been modified (or is new)
   if (!user.isModified("password")) return next();
@@ -35,15 +16,29 @@ UserSchema.pre("save", async function (next: mongoose.HookNextFunction) {
   user.password = hash;
 
   return next();
+})
+export class User {
+  _id: ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+
+  @prop({ required: true, unique: true })
+  public email: string;
+
+  @prop({ required: true })
+  public name: string;
+
+  @prop({ required: true })
+  public password: string;
+
+  public async comparePassword(candidatePassword: string) {
+    const user = this;
+    return bcrypt.compare(candidatePassword, user.password).catch((e) => false);
+  }
+}
+
+export const UserModel = getModelForClass(User, {
+  schemaOptions: { timestamps: true, toJSON: { virtuals: true } },
 });
-
-UserSchema.methods.comparePassword = async function (
-  candidatePassword: string
-) {
-  const user = this as UserDocument;
-  return bcrypt.compare(candidatePassword, user.password).catch((e) => false);
-};
-
-const User = mongoose.model<UserDocument>("User", UserSchema);
 
 export default User;

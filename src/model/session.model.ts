@@ -1,22 +1,24 @@
-import mongoose from "mongoose";
-import { UserDocument } from "./user.model";
+import { ObjectId } from "mongoose";
+import { prop, getModelForClass } from "@typegoose/typegoose";
+import User from "./user.model";
 
-export interface SessionDocument extends mongoose.Document {
-    user: UserDocument["_id"];
-    valid: boolean;
-    userAgent: string;
-    createdAt: Date;
-    updatedAt: Date;
+export class Session {
+  _id: ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+
+  @prop()
+  user: User["_id"];
+
+  @prop()
+  valid: boolean;
+
+  @prop()
+  userAgent: string;
 }
 
-const SessionSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
-    valid: { type: Boolean, default: true },
-    userAgent: { type: String }
-}, {
-    timestamps: true
-})
-
-const Session = mongoose.model<SessionDocument>("Session", SessionSchema);
+export const SessionModel = getModelForClass(Session, {
+  schemaOptions: { timestamps: true, toJSON: { virtuals: true } },
+});
 
 export default Session;
