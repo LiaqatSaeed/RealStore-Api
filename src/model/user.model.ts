@@ -2,6 +2,11 @@ import { ObjectId } from "mongoose";
 import bcrypt from "bcrypt";
 import config from "config";
 import { getModelForClass, prop, pre } from "@typegoose/typegoose";
+import {
+  ObjectType as GQLType,
+  Field as GQLField,
+  Resolver as GQLResolver,
+} from "type-graphql";
 
 @pre<User>("save", async function (next) {
   let user = this;
@@ -17,17 +22,23 @@ import { getModelForClass, prop, pre } from "@typegoose/typegoose";
 
   return next();
 })
+@GQLType()
 export class User {
-  _id: ObjectId;
+  readonly _id: ObjectId;
+  @GQLField()
   createdAt: Date;
+  @GQLField()
   updatedAt: Date;
 
+  @GQLField()
   @prop({ required: true, unique: true })
   public email: string;
 
+  @GQLField()
   @prop({ required: true })
   public name: string;
 
+  @GQLField()
   @prop({ required: true })
   public password: string;
 

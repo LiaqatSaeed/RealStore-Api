@@ -5,7 +5,7 @@ import { LeanDocument, FilterQuery, UpdateQuery, ObjectId } from "mongoose";
 import { findUser } from "../controller/user.controller";
 import Session, { SessionModel } from "../model/session.model";
 import User from "../model/user.model";
-import { decode, sign } from "../urtils/jwt.utils";
+import { decode, sign } from "../utils/jwt.utils";
 import { DocumentType } from "@typegoose/typegoose";
 
 export async function createSession(userId: ObjectId, userAgent: string) {

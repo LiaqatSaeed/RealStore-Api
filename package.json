@@ -18,16 +18,21 @@
   },
   "dependencies": {
     "@typegoose/typegoose": "^8.2.0",
+    "apollo-server-express": "^3.3.0",
     "bcrypt": "^5.0.1",
+    "class-validator": "^0.13.1",
     "config": "^3.3.6",
     "cors": "^2.8.5",
     "dayjs": "^1.10.6",
     "express": "^4.17.1",
+    "graphql": "^15.5.2",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "mongoose": "^5.12.7",
     "pino": "^6.13.1",
     "pino-pretty": "^6.0.0",
+    "reflect-metadata": "^0.1.13",
+    "type-graphql": "^1.1.1",
     "yup": "^0.32.9"
   },
   "devDependencies": {

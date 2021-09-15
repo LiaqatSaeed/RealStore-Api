@@ -2,7 +2,7 @@ import config from "config";
 import { Request, Response } from "express";
 import { createAccessToken, createSession } from "../service/session.service";
 import { validatePassword } from "../service/user.service";
-import { sign } from "../urtils/jwt.utils";
+import { sign } from "../utils/jwt.utils";
 import get from "lodash/get";
 import { updateSession, findSessions } from "../service/session.service";
 
